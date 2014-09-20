@@ -28,4 +28,6 @@ change the settings inside script (please don't modify to much sources. If you h
 
 load the script inside your eggdrop conf using source scripts/znc.tcl
 
+To administrate your ZNC you have to set userflag +Y for all you ZNC users please set +Z. (so maybe you could share but not recommented)
+
 
