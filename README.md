@@ -22,7 +22,7 @@ Your Eggdrop should not share his userlist with another eggdrop which is not adm
  
 copy the script to your eggdrops scriptdir. 
 create every existing ZNC user using .+user zncusername
-(to stop overriding an ZNC account)
+(to stop overwriting an ZNC account)
 
 change the settings inside script (please don't modify to much sources. If you have feature requests, no problem, tell it to me)
 
