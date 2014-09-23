@@ -33,7 +33,8 @@ To administrate your ZNC you have to set userflag +Y for all you ZNC users pleas
 finally add the channelflag +znc to your ZNC Management channel or run your Bot as /msg only bot. (like some services bots)
 
 <b>4. Discription and Commands</b>
-the znc.tcl adds an request and administration panel to your ZNC for an eggdrop. So your Users can request a ZNC Account and after a confirm by the ZNC Admins (marked with +Y) the bot will send an e-mail to the User with Login, password and serverurl. 
+
+The znc.tcl adds an request and administration panel to your ZNC for an eggdrop. So your Users can request a ZNC Account and after a confirm by the ZNC Admins (marked with +Y) the bot will send an e-mail to the User with Login, password and serverurl. 
 
 Commands:
 (!)help                 - gerneates Help output
