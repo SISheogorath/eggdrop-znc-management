@@ -7,7 +7,7 @@ set scriptOwner "Christoph Kern"
 set scriptOwnerMail "Sheogorath@shivering-isles.de" 
 set scriptchannel "#PalastVonSheogorath"
 set scriptOwnerNetwork "irc.shivering-isles.de"
-set scriptversion "0.7.0.0"
+set scriptversion "0.7.0.1"
 set scriptdebug 0
 
 putlog "$scriptname loading configuration..."
