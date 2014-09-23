@@ -81,7 +81,7 @@ set zncPasswordLength 16
 
 ### Optional - Preconfiguration -----------------------------------------------
 # Default Modules and Networks
-#
+# !!!!!!! DISABLED !!!!!!!! FEATURE COMMING SOON !!!!!!!!
 # 
 ###----------------------------------------------------------------------------
 
