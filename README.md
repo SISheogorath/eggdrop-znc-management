@@ -38,13 +38,21 @@ The znc.tcl adds an request and administration panel to your ZNC for an eggdrop.
 
 Commands:
 (!)help                 - gerneates Help output
+
 (!)request              - requests an ZNC account
+
 Admins:
+
 (!)confirm              - confirms an account request
+
 (!)deny                 - denies an account request 
+
 (!)delUser              - dels an user from ZNC and removes is entry inside eggdrop (to stop name reservation)
+
 (!)ListUnconfirmedUsers - lists unconfirmed user
+
 (!)LUU                  - same as (!)ListUnconfirmedUsers
+
 
 All commands works via privatemsg without prefix (!). prefix is customizeable in script's config part. 
 
