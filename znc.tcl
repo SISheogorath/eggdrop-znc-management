@@ -750,10 +750,11 @@ setudef flag znc
 
 ## public binds ---------------------------------------------------------------
 bind PUB - "${scriptCommandPrefix}Request" znc:PUB:request
-bind PUB n|m|t "${scriptCommandPrefix}Confirm" znc:PUB:confirm
-bind PUB n|m|t "${scriptCommandPrefix}Deny" znc:PUB:deny
-bind PUB n|m|t "${scriptCommandPrefix}DelUser" znc:PUB:delUser
-bind PUB n|m|t "${scriptCommandPrefix}ListUnconfirmedUsers" znc:PUB:listUnconfirmed
+bind PUB Y "${scriptCommandPrefix}Confirm" znc:PUB:confirm
+bind PUB Y "${scriptCommandPrefix}Deny" znc:PUB:deny
+bind PUB Y "${scriptCommandPrefix}DelUser" znc:PUB:delUser
+bind PUB Y "${scriptCommandPrefix}ListUnconfirmedUsers" znc:PUB:listUnconfirmed
+bind PUB Y "${scriptCommandPrefix}LUU" znc:PUB:listUnconfirmed
 bind PUB - "${scriptCommandPrefix}help" znc:PUB:help
 
 ## private binds --------------------------------------------------------------
@@ -762,6 +763,7 @@ bind MSG Y "Confirm" znc:MSG:confirm
 bind MSG Y "Deny" znc:MSG:deny
 bind MSG Y "DelUser" znc:MSG:delUser
 bind MSG Y "ListUnconfirmedUsers" znc:MSG:listUnconfirmed
+bind MSG Y "LUU" znc:MSG:listUnconfirmed
 bind MSG - "help" znc:MSG:help
 
 ## debug binds ----------------------------------------------------------------
