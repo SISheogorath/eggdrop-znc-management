@@ -490,8 +490,10 @@ proc znc:help {nick host handle chan text} {
 		}
 	} else {
 		puthelp "NOTICE $nick :#$scriptname Command list:"
-		puthelp "NOTICE $nick :#request    	           |Requests an ZNC Account"
-		puthelp "NOTICE $nick :#ListUnconfirmedUsers    |Lists unconfirmed ZNC Account"
+		puthelp "NOTICE $nick :#request    	            |Requests an ZNC Account"
+		puthelp "NOTICE $nick :#status    	            |Shows confirmation state of a ZNC Account"
+		puthelp "NOTICE $nick :#ListAllUsers            |Lists all ZNC Accounts"
+		puthelp "NOTICE $nick :#ListUnconfirmedUsers    |Lists unconfirmed ZNC Accounts"
 		puthelp "NOTICE $nick :#Confirm                 |Confirms ZNC Account request"
 		puthelp "NOTICE $nick :#Deny                    |Denies a ZNC Account request"
 		puthelp "NOTICE $nick :#DelUser                 |Deletes a confirmed ZNC Account"
@@ -515,6 +517,27 @@ proc znc:help {nick host handle chan text} {
 	}
 }
 
+proc znc:zncinfo {nick host handle chan text} {
+	global scriptCommandPrefix zncAdminName scriptname botnick zncnetworkname znchost zncNonSSLPort zncSSLPort zncWebNonSSLPort zncWebSSLPort zncAdminName zncAdminMail 
+	puthelp "NOTICE $nick :Here are our ZNC information:"
+	puthelp "NOTICE $nick :Our ZNChost is: $znchost"
+	if { $zncNonSSLPort != "" } {
+		puthelp "NOTICE $nick :To connect your IRC Client via NON-SSL connect to: ${znchost}:${zncNonSSLPort}"
+	}
+	if { $zncSSLPort != "" } {
+		puthelp "NOTICE $nick :To connect your IRC Client via SSL connect to: ${znchost}:${zncSSLPort}"
+	}
+	puthelp "NOTICE $nick :Your ZNC Username is: $username"
+	puthelp "NOTICE $nick :Your ZNC Password is: $password"
+	puthelp "NOTICE $nick :To Connect to ZNC-Server use \"username/networkname:password\" as server-password"
+	if { $zncWebNonSSLPort != "" } {
+		puthelp "NOTICE $nick :To login via NON-SSL-Webinterface goto: http://${znchost}:${zncWebNonSSLPort}"
+	}
+	if { $zncWebSSLPort != "" } {
+		puthelp "NOTICE $nick :To login via SSL-Webinterface goto: https://${znchost}:${zncWebSSLPort}"
+	}
+	puthelp "NOTICE $nick :### End of information ###"
+}
 
 ### ZNC - Functions -----------------------------------------------------------
 
@@ -715,6 +738,16 @@ proc znc:MSG:request {nick host handle text} {
 	znc:request $nick $host $handle $nick $text
 }
 
+## Info Commands
+proc znc:PUB:info {nick host handle chan text} {
+	if [eggdrop:helpfunction:isNotZNCChannel $chan ] { return }
+	znc:zncinfo $nick $host $handle $chan $text
+}
+
+proc znc:MSG:info {nick host handle text} {
+	znc:zncinfo $nick $host $handle $nick $text
+}
+
 ## Confirm Commands
 proc znc:PUB:confirm {nick host handle chan text} {
 	if [eggdrop:helpfunction:isNotZNCChannel $chan ] { return }
@@ -753,6 +786,28 @@ proc znc:PUB:delUser {nick host handle chan text} {
 
 proc znc:MSG:delUser {nick host handle text} {
 	znc:delUser $nick $host $handle $nick $text
+}
+
+## List Command
+proc znc:PUB:listchoose {nick host handle chan text} {
+	if [eggdrop:helpfunction:isNotZNCChannel $chan ] { return }
+	if {[string tolower [lindex $text 0]] == "members"} {
+		znc:listall $nick $host $handle $chan $text
+	} elseif {[string tolower [lindex $text 0]] == "pending"} {
+		znc:listUnconfirmed $nick $host $handle $chan $text
+	} else {
+		puthelp "PRIVMSG $chan :Please use the help command."
+	}
+}
+
+proc znc:MSG:listchoose {nick host handle text} {
+	if {[string tolower [lindex $text 0]] == "members"} {
+		znc:listall $nick $host $handle $nick $text
+	} elseif {[string tolower [lindex $text 0]] == "pending"} {
+		znc:listUnconfirmed $nick $host $handle $nick $text
+	} else {
+		puthelp "PRIVMSG $nick :Please use the help command."
+	}
 }
 
 ## ListUnconfirmedUsers Commands
@@ -797,12 +852,12 @@ setudef flag znc
 ## public binds ---------------------------------------------------------------
 bind PUB - "${scriptCommandPrefix}Request" znc:PUB:request
 bind PUB - "${scriptCommandPrefix}Status" znc:PUB:status
+bind PUB - "${scriptCommandPrefix}Info" znc:PUB:info
 bind PUB Y "${scriptCommandPrefix}Confirm" znc:PUB:confirm
 bind PUB Y "${scriptCommandPrefix}Deny" znc:PUB:deny
 bind PUB Y "${scriptCommandPrefix}DelUser" znc:PUB:delUser
-bind PUB Y "${scriptCommandPrefix}List pending" znc:PUB:listUnconfirmed
 bind PUB Y "${scriptCommandPrefix}ListUnconfirmedUsers" znc:PUB:listUnconfirmed
-bind PUB Y "${scriptCommandPrefix}List members" znc:PUB:listall
+bind PUB Y "${scriptCommandPrefix}List" znc:PUB:listchoose
 bind PUB Y "${scriptCommandPrefix}ListAllUsers" znc:PUB:listall
 bind PUB Y "${scriptCommandPrefix}LAU" znc:PUB:listall
 bind PUB Y "${scriptCommandPrefix}LUU" znc:PUB:listUnconfirmed
@@ -811,13 +866,13 @@ bind PUB - "${scriptCommandPrefix}help" znc:PUB:help
 ## private binds --------------------------------------------------------------
 bind MSG - "Request" znc:MSG:request
 bind MSG - "Status" znc:MSG:status
+bind MSG - "Info" znc:MSG:info
 bind MSG Y "Confirm" znc:MSG:confirm
 bind MSG Y "Deny" znc:MSG:deny
 bind MSG Y "DelUser" znc:MSG:delUser
-bind MSG Y "List pending" znc:MSG:listUnconfirmed
 bind MSG Y "ListUnconfirmedUsers" znc:MSG:listUnconfirmed
 bind MSG Y "ListALLUsers" znc:MSG:listall
-bind MSG Y "List members" znc:MSG:listall
+bind MSG Y "List" znc:MSG:listchoose
 bind MSG Y "LAU" znc:MSG:listall
 bind MSG Y "LUU" znc:MSG:listUnconfirmed
 bind MSG - "help" znc:MSG:help
