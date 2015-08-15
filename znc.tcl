@@ -796,7 +796,7 @@ proc znc:PUB:listchoose {nick host handle chan text} {
 	} elseif {[string tolower [lindex $text 0]] == "pending"} {
 		znc:listUnconfirmed $nick $host $handle $chan $text
 	} else {
-		puthelp "NOTICE $chan :Please use the help command."
+		puthelp "NOTICE $nick :Please use the help command."
 	}
 }
 
