@@ -37,9 +37,6 @@ set adverticeScriptOwner 0
 ## Prefix for triggering Bot Commands things like !request or .request
 set scriptCommandPrefix "!"
 
-## Sendmailpath !!!!! YOU REALLY NEED TO CHECK THE PATH !!!!!
-set sendmailPath "/usr/sbin/sendmail"
-
 ### ZNC -----------------------------------------------------------------------
 # Here you can configure your whole ZNC settings
 #
@@ -209,41 +206,19 @@ if { $scriptdebug } {
 proc znc:request { nick host handle chan text } {
 	global scriptCommandPrefix zncPasswordSecurityLevel zncPasswordLength zncnetworkname zncDefaultUserModules zncDefaultNetworkModules
 	set username [lindex $text 0]
-	set email [lindex $text 1]
-	set networkname [lindex $text 2]
-	set server [lindex $text 3]
-	set port [lindex $text 4]
-	if { $email == ""} { 
-		puthelp "NOTICE $nick :${scriptCommandPrefix}request syntax is \"${scriptCommandPrefix}request <zncusername> <e-mail-address> \[<networkname> \[<serveraddress> <\[+\]port>\]\]\" for more please use \"${scriptCommandPrefix}help reqest\""
+	if { $username == ""} { 
+		puthelp "NOTICE $nick :${scriptCommandPrefix}request syntax is \"${scriptCommandPrefix}request <zncusername>\" for more please use \"${scriptCommandPrefix}help request\""
 		return
 	} else {
 		set password [znc:helpfunction:generatePassword  $zncPasswordSecurityLevel $zncPasswordLength ]
 		if [ adduser $username ] {
-			setuser $username COMMENT $email
+			setuser $username COMMENT $nick
 			chattr $username +ZC
 			znc:controlpanel:AddUser $username $password 
 			znc:blockuser:block $username 
-			znc:helpfunction:loadModuleList $username $zncDefaultUserModules
-			if { $networkname != ""} {
-				set preServer ""
-				if { $usePreconfiguredNetworks } {
-					set preServer [array names knownNetworks -exact [string tolower $networkname]]
-				}
-				znc:controlpanel:AddNetwork $username $networkname
-				znc:helpfunction:loadNetModuleList $username $networkname $zncDefaultNetworkModules
-				if { $preServer != "" } {
-					foreach {networkname networkserver} [array get knownNetworks [string tolower $networkname]] {
-						znc:controlpanel:AddServer $username $networkname $networkserver 
-					}
-				} else {
-					if { $port != "" } {
-						znc:controlpanel:AddServer $username $networkname "$server $port"
-					}
-				}
-			}
-			puthelp "NOTICE $nick :Hey $nick, your request for $username is noticed and after confirm by an administrator you'll get an email with all needed data."
+			puthelp "NOTICE $nick :Hey $nick, your request for $username is noticed and after confirm by an administrator you'll get an IRC Message with all needed data."
 		} else {
-			puthelp "NOTICE $nick :Sry, but your wanted username is already in use..."
+			puthelp "NOTICE $nick :Sry, but your wanted username is already in use... :/"
 		}
 	}
 }
@@ -257,7 +232,8 @@ proc znc:confirm {nick host handle chan text} {
 	if [ matchattr $username C] {
 		set password [znc:helpfunction:generatePassword $zncPasswordSecurityLevel $zncPasswordLength ]
 		znc:controlpanel:Set "password" $username $password 
-		mail:simply:sendUserRequest $username $password 
+		msg:simply:sendUserRequest $username $password
+		
 		znc:blockuser:unblock $username 
 		chattr $username -C
 		puthelp "NOTICE $nick :$username is now confirmed."
@@ -265,6 +241,21 @@ proc znc:confirm {nick host handle chan text} {
 		puthelp "NOTICE $nick :$username is already confirmed."
 	} else {
 		puthelp "NOTICE $nick :$username does not exist"
+	}
+}
+
+proc znc:status {nick host handle chan text} {
+	global scriptCommandPrefix zncPasswordSecurityLevel zncPasswordLength
+	set username [lindex $text 0]
+	if {$username == "" } {
+		puthelp "NOTICE $nick :${scriptCommandPrefix}status syntax is \"${scriptCommandPrefix}status <zncusername>\" for more please use \"${scriptCommandPrefix}help status"
+	}
+	if [ matchattr $username C] {
+		puthelp "NOTICE $nick :Confirmation for $username is still pending."
+	} elseif { validuser $username } {
+		puthelp "NOTICE $nick :$username is confirmed."
+	} else {
+		puthelp "NOTICE $nick :$username does not exist."
 	}
 }
 
@@ -307,6 +298,16 @@ proc znc:listUnconfirmed {nick host handle chan text} {
 		puthelp "NOTICE $nick :Unconfirmed users: $UnConfirmedList"
 	} else {
 		puthelp "NOTICE $nick :no unconfirmed users"
+	}
+}
+
+proc znc:listall {nick host handle chan text} {
+	global scriptCommandPrefix
+	set UnConfirmedList [join [ userlist Z ] ,]
+	if { $UnConfirmedList != "" } {
+		puthelp "NOTICE $nick :Existing users: $UnConfirmedList"
+	} else {
+		puthelp "NOTICE $nick :no existing users O.o"
 	}
 }
 
@@ -608,35 +609,28 @@ proc znc:helpfunction:loadNetModuleList { username network list} {
 	}
 }
 
-proc mail:simply:send { usermail subject content } {
-	global zncAdminMail
-	mail:sendTo:user $zncAdminMail $usermail $subject $content 
-}
 
-proc mail:simply:sendUserRequest { username password } {
+proc msg:simply:sendUserRequest { username password } {
 	global zncnetworkname znchost zncNonSSLPort zncSSLPort zncWebNonSSLPort zncWebSSLPort zncAdminName zncAdminMail 
-	set email [getuser $username COMMENT]
-	set content "Hey $username,\n\n You've requested a ZNC-Account hosted by $zncnetworkname\n\nYou have to wait for the confirm by an Admin of our ZNC. If it's done use the following data to login:\n\n"
-	append content \n\n "Our ZNChost is: $znchost"
+	set nick [getuser $username COMMENT]
+	set content "PRIVMSG $nick :Hey ${nick}, your ZNC account hosted by $zncnetworkname is confirmed. Our ZNChost is: $znchost"
 	if { $zncNonSSLPort != "" } {
-	append content \n "To connect your IRC Client via NON-SSL connect to: ${znchost}:${zncNonSSLPort}"
+		set content "$content To connect your IRC Client via NON-SSL connect to: ${znchost}:${zncNonSSLPort}"
 	}
 	if { $zncSSLPort != "" } {
-	append content \n "To connect your IRC Client via SSL connect to: ${znchost}:${zncSSLPort}"
+	set content "$content To connect your IRC Client via SSL connect to: ${znchost}:${zncSSLPort}"
 	}
-	append content \n "Your ZNC Username is: $username"
-	append content \n "Your ZNC Password is: $password"
-	append content \n "To Connect to ZNC-Server use \"${username}:${password}\" as server-password"
+	set content "$content Your ZNC Username is: $username"
+	set content "$content Your ZNC Password is: $password"
+	set content "$content To Connect to ZNC-Server use \"${username}:${password}\" as server-password"
 	if { $zncWebNonSSLPort != "" } {
-	append content \n "To login via NON-SSL-Webinterface goto: http://${znchost}:${zncWebNonSSLPort}"
+	set content "$content To login via NON-SSL-Webinterface goto: http://${znchost}:${zncWebNonSSLPort}"
 	}
 	if { $zncWebSSLPort != "" } {
-	append content \n "To login via SSL-Webinterface goto: https://${znchost}:${zncWebSSLPort}"
+	set content "$content To login via SSL-Webinterface goto: https://${znchost}:${zncWebSSLPort}"
 	}
-	if { $zncAdminMail != "" } {
-	append content \n\n\n\n "If this e-mail is spam please instantly contact $zncAdminMail"
-	}
-	mail:simply:send $email "Requested ZNC-Account at $zncnetworkname" $content 
+	
+	putquick "$content" 
 }
 
 proc eggdrop:helpfunction:isNotZNCChannel { chan } {
@@ -665,16 +659,6 @@ proc znc:sendTo:blockuser { command } {
 	putquick "PRIVMSG ${zncprefix}blockuser :$command"
 }
 
-proc mail:sendTo:user { from to subject content {cc "" } } {
-	global sendmailPath
-	set msg {From: $from}
-	append msg \n "To: " [join $to , ]
-	append msg \n "Cc: " [join $cc , ]
-	append msg \n "Subject: $subject"
-	append msg \n\n $content
-
-	exec $sendmailPath -oi -t << $msg
-}
 
 
 ### Commands - Functions ------------------------------------------------------
@@ -697,6 +681,16 @@ proc znc:PUB:confirm {nick host handle chan text} {
 
 proc znc:MSG:confirm {nick host handle text} {
 	znc:confirm $nick $host $handle $nick $text
+}
+
+## Status Commands
+proc znc:PUB:status {nick host handle chan text} {
+	if [eggdrop:helpfunction:isNotZNCChannel $chan ] { return }
+	znc:status $nick $host $handle $chan $text
+}
+
+proc znc:MSG:status {nick host handle text} {
+	znc:status $nick $host $handle $nick $text
 }
 
 ## Deny Commands
@@ -729,6 +723,16 @@ proc znc:MSG:listUnconfirmed {nick host handle text} {
 	znc:listUnconfirmed $nick $host $handle $nick $text
 }
 
+## ListAllUsers Commands
+proc znc:PUB:listall {nick host handle chan text} {
+	if [eggdrop:helpfunction:isNotZNCChannel $chan ] { return }
+	znc:listall $nick $host $handle $chan $text
+}
+
+proc znc:MSG:listall {nick host handle text} {
+	znc:listall $nick $host $handle $nick $text
+}
+
 ## Help Commands
 proc znc:PUB:help {nick host handle chan text} {
 	if [eggdrop:helpfunction:isNotZNCChannel $chan ] { return }
@@ -750,19 +754,25 @@ setudef flag znc
 
 ## public binds ---------------------------------------------------------------
 bind PUB - "${scriptCommandPrefix}Request" znc:PUB:request
+bind PUB - "${scriptCommandPrefix}Status" znc:PUB:status
 bind PUB Y "${scriptCommandPrefix}Confirm" znc:PUB:confirm
 bind PUB Y "${scriptCommandPrefix}Deny" znc:PUB:deny
 bind PUB Y "${scriptCommandPrefix}DelUser" znc:PUB:delUser
 bind PUB Y "${scriptCommandPrefix}ListUnconfirmedUsers" znc:PUB:listUnconfirmed
+bind PUB Y "${scriptCommandPrefix}ListAllUsers" znc:PUB:listall
+bind PUB Y "${scriptCommandPrefix}LAU" znc:PUB:listall
 bind PUB Y "${scriptCommandPrefix}LUU" znc:PUB:listUnconfirmed
 bind PUB - "${scriptCommandPrefix}help" znc:PUB:help
 
 ## private binds --------------------------------------------------------------
 bind MSG - "Request" znc:MSG:request
+bind MSG - "Status" znc:MSG:status
 bind MSG Y "Confirm" znc:MSG:confirm
 bind MSG Y "Deny" znc:MSG:deny
 bind MSG Y "DelUser" znc:MSG:delUser
 bind MSG Y "ListUnconfirmedUsers" znc:MSG:listUnconfirmed
+bind MSG Y "ListALLUsers" znc:MSG:listall
+bind MSG Y "LAU" znc:MSG:listall
 bind MSG Y "LUU" znc:MSG:listUnconfirmed
 bind MSG - "help" znc:MSG:help
 
