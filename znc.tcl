@@ -339,7 +339,7 @@ proc znc:help {nick host handle chan text} {
 				puthelp "NOTICE $nick :### End of Help ###"
 			}
 			status {
-				puthelp "NOTICE $nick :#Help for ${scriptCommandPrefix}Stauts"
+				puthelp "NOTICE $nick :#Help for ${scriptCommandPrefix}Status"
 				puthelp "NOTICE $nick :# "
 				puthelp "NOTICE $nick :#With ${scriptCommandPrefix}Status you can check confirmation state of your ZNC Account request."
 				puthelp "NOTICE $nick :# "
@@ -354,6 +354,21 @@ proc znc:help {nick host handle chan text} {
 					puthelp "NOTICE $nick :#  /msg $botnick Status <zncusername>"
 					puthelp "NOTICE $nick :#Example:"
 					puthelp "NOTICE $nick :#   /msg $botnick Status Foo"
+				}
+				puthelp "NOTICE $nick :### End of Help ###"
+			}
+			info {
+				puthelp "NOTICE $nick :#Help for ${scriptCommandPrefix}Info"
+				puthelp "NOTICE $nick :# "
+				puthelp "NOTICE $nick :#With ${scriptCommandPrefix}Info displays znc informations."
+				puthelp "NOTICE $nick :# "
+				puthelp "NOTICE $nick :#-----------------"
+				if { $chan != $nick } {
+					puthelp "NOTICE $nick :#Syntax:"
+					puthelp "NOTICE $nick :#   ${scriptCommandPrefix}info"
+				} else {
+					puthelp "NOTICE $nick :#Syntax:"
+					puthelp "NOTICE $nick :#  /msg $botnick info"
 				}
 				puthelp "NOTICE $nick :### End of Help ###"
 			}
@@ -399,7 +414,9 @@ proc znc:help {nick host handle chan text} {
 			list {
 				puthelp "NOTICE $nick :#Help for ${scriptCommandPrefix}list"
 				puthelp "NOTICE $nick :# "
-				puthelp "NOTICE $nick :#With ${scriptCommandPrefix}list is an alias of ${scriptCommandPrefix}ListAllUsers and ${scriptCommandPrefix}ListUnconfirmedUsers"
+				puthelp "NOTICE $nick :#${scriptCommandPrefix}list is an alias of ${scriptCommandPrefix}ListAllUsers and ${scriptCommandPrefix}ListUnconfirmedUsers"
+				puthelp "NOTICE $nick :#You can use \"${scriptCommandPrefix}list members\" for ${scriptCommandPrefix}ListAllUsers"
+				puthelp "NOTICE $nick :#and \"${scriptCommandPrefix}list pending\" for ${scriptCommandPrefix}ListUnconfirmedUsers"
 				puthelp "NOTICE $nick :### End of Help ###"
 			}
 			confirm {
@@ -492,6 +509,9 @@ proc znc:help {nick host handle chan text} {
 		puthelp "NOTICE $nick :#$scriptname Command list:"
 		puthelp "NOTICE $nick :#request    	            |Requests an ZNC Account"
 		puthelp "NOTICE $nick :#status    	            |Shows confirmation state of a ZNC Account"
+		puthelp "NOTICE $nick :#info    	            |Shows znc informations"
+		puthelp "NOTICE $nick :Admin-only commands:"
+		puthelp "NOTICE $nick :#list    	            |Aliases for ListAllUsers and ListUnconfirmedUsers"
 		puthelp "NOTICE $nick :#ListAllUsers            |Lists all ZNC Accounts"
 		puthelp "NOTICE $nick :#ListUnconfirmedUsers    |Lists unconfirmed ZNC Accounts"
 		puthelp "NOTICE $nick :#Confirm                 |Confirms ZNC Account request"
