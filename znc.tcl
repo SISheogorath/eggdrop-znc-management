@@ -237,7 +237,7 @@ proc znc:confirm {nick host handle chan text} {
 		znc:blockuser:unblock $username 
 		chattr $username -C
 		puthelp "NOTICE $nick :$username is now confirmed."
-	} elseif { validuser $username } {
+	} elseif [ validuser $username ] {
 		puthelp "NOTICE $nick :$username is already confirmed."
 	} else {
 		puthelp "NOTICE $nick :$username does not exist"
@@ -252,7 +252,7 @@ proc znc:status {nick host handle chan text} {
 	}
 	if [ matchattr $username C] {
 		puthelp "NOTICE $nick :Confirmation for $username is still pending."
-	} elseif { validuser $username } {
+	} elseif [ validuser $username ] {
 		puthelp "NOTICE $nick :$username is confirmed."
 	} else {
 		puthelp "NOTICE $nick :$username does not exist."
@@ -269,7 +269,7 @@ proc znc:deny {nick host handle chan text} {
 		znc:controlpanel:DelUser $username 
 		deluser $username
 		puthelp "NOTICE $nick :$username is now denied."
-	} elseif { validuser $username } {
+	} elseif [ validuser $username ] {
 		puthelp "NOTICE $nick :$username is already confirmed. Use \"${scriptCommandPrefix}DelUser <username>\" to remove"
 	} else {
 		puthelp "NOTICE $nick :$username does not exist"
