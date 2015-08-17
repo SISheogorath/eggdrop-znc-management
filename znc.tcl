@@ -547,8 +547,6 @@ proc znc:zncinfo {nick host handle chan text} {
 	if { $zncSSLPort != "" } {
 		puthelp "NOTICE $nick :To connect your IRC Client via SSL connect to: ${znchost}:${zncSSLPort}"
 	}
-	puthelp "NOTICE $nick :Your ZNC Username is: $username"
-	puthelp "NOTICE $nick :Your ZNC Password is: $password"
 	puthelp "NOTICE $nick :To Connect to ZNC-Server use \"username/networkname:password\" as server-password"
 	if { $zncWebNonSSLPort != "" } {
 		puthelp "NOTICE $nick :To login via NON-SSL-Webinterface goto: http://${znchost}:${zncWebNonSSLPort}"
