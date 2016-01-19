@@ -207,7 +207,7 @@ if { $scriptdebug } {
 ### Bot Commands --------------------------------------------------------------
 
 proc znc:request { nick host handle chan text } {
-	global scriptCommandPrefix zncPasswordSecurityLevel zncPasswordLength zncnetworkname zncDefaultUserModules zncDefaultNetworkModules
+	global scriptCommandPrefix zncPasswordSecurityLevel zncPasswordLength zncnetworkname zncDefaultUserModules zncDefaultNetworkModules usePreconfiguredNetworks
 	set username [lindex $text 0]
 	set email [lindex $text 1]
 	set networkname [lindex $text 2]
