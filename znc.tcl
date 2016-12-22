@@ -204,7 +204,7 @@ if { $scriptdebug } {
 ### Bot Commands --------------------------------------------------------------
 
 proc znc:request { nick host handle chan text } {
-	global scriptCommandPrefix zncPasswordSecurityLevel zncPasswordLength zncnetworkname zncDefaultUserModules zncDefaultNetworkModules
+	global scriptCommandPrefix zncPasswordSecurityLevel zncPasswordLength zncnetworkname zncDefaultUserModules zncDefaultNetworkModules usePreconfiguredNetworks
 	set username [lindex $text 0]
 	if { $username == ""} { 
 		puthelp "NOTICE $nick :${scriptCommandPrefix}request syntax is \"${scriptCommandPrefix}request <zncusername>\" for more please use \"${scriptCommandPrefix}help request\""
